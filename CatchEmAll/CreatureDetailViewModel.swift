@@ -10,8 +10,8 @@ import Foundation
 @MainActor
 class CreaturesDetailViewModel: ObservableObject {
     private struct Returned: Codable {
-        var height: Double
-        var weight: Double
+        var height: Double?
+        var weight: Double?
         var sprites: Sprite //For poke image
     }
     struct Sprite: Codable {
@@ -48,9 +48,9 @@ class CreaturesDetailViewModel: ObservableObject {
                 return
             }
             //Decode JSON into class's properties
-            self.height = returned.height
-            self.weight = returned.weight
-            self.imageURL = returned.sprites.other.officialArtwork.front_default ?? ""
+            self.height = returned.height ?? 0.0
+            self.weight = returned.weight ?? 0.0
+            self.imageURL = returned.sprites.other.officialArtwork.front_default ?? "n/a" //Dont use "" due to it's a valid url. Will create ERROR
         } catch {
             print("😡 ERROR: Could not fetch data from \(urlString): \(error)")
         }

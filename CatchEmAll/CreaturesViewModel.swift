@@ -54,4 +54,14 @@ private struct Returned: Codable {
             await getData()
         }
     }
-}
+    
+    func loadNextIfNeeded(creature: Creature) async {
+        guard let lastCreature = creaturesArray.last else {
+            return
+        }
+        if creature.id == lastCreature.id && urlString .contains("http") {
+                    await getData()
+            }
+        }
+    }
+

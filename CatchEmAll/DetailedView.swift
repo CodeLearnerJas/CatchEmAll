@@ -23,32 +23,8 @@ struct DetailedView: View {
                 .foregroundColor(.gray)
                 .padding(.bottom)
             HStack {
-                AsyncImage(url: URL(string: creatureDetailVM.imageURL)) { image in
-                    image
-                        .resizable()
-                        .scaledToFit()
-                        .background(.white)
-                        .frame(width: 96, height: 96)
-                        .cornerRadius(16)
-                        .shadow(radius: 8, x: 5, y: 5)
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color.gray.opacity(0.5), lineWidth: 1)
-                        }
-                        .padding(.trailing)
-                } placeholder: {
-                    Image(systemName: "questionmark.circle")
-                        .resizable()
-                        .scaledToFit()
-                        .background(.white)
-                        .frame(width: 96, height: 96)
-                        .shadow(radius: 8, x: 5, y: 5)
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color.gray.opacity(0.5), lineWidth: 1)
-                        }
-                        .padding(.trailing)
-                }
+                
+                creatureImage
                 
                 VStack (alignment: .leading) {
                     HStack (alignment: .top){
@@ -83,6 +59,46 @@ struct DetailedView: View {
             creatureDetailVM.urlString = creature.url
             //Assign the pokemon url here, dont assign url in CreatureDetailViewModel because 'creature' is not in that scope
             await creatureDetailVM.getData()
+        }
+    }
+}
+extension DetailedView {
+    var creatureImage: some View {
+        AsyncImage(url: URL(string: creatureDetailVM.imageURL)) { phase in
+            if let image = phase.image {
+                //valid
+                image
+                    .resizable()
+                    .scaledToFit()
+                    .background(.white)
+                    .frame(width: 96, height: 96)
+                    .cornerRadius(16)
+                    .shadow(radius: 8, x: 5, y: 5)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                    }
+                    .padding(.trailing)
+            } else if phase.error != nil {
+                //error
+                Image(systemName: "questionmark.square.dashed")
+                    .resizable()
+                    .scaledToFit()
+                    .background(.white)
+                    .frame(width: 96, height: 96)
+                    .cornerRadius(16)
+                    .shadow(radius: 8, x: 5, y: 5)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                    }
+            } else {
+                //use a placeholder
+                Rectangle()
+                    .background(.clear)
+                    .frame(width: 96, height: 96)
+                    .padding(.trailing)
+            }
         }
     }
 }

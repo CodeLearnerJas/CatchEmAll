@@ -9,30 +9,28 @@ import SwiftUI
 
 struct CreaturesListView: View {
     @StateObject var creaturesVM = CreaturesViewModel()
+    @State var searchText: String = ""
     
     var body: some View {
         NavigationStack{
             ZStack {
-               
-                List(0..<creaturesVM.creaturesArray.count, id: \.self) { index in
+                
+                List(searchResults) { creature in
                     LazyVStack {
                         NavigationLink {
-                            DetailedView(creature: creaturesVM.creaturesArray[index])
+                            DetailedView(creature: creature)
                         } label: {
-                            Text("\(index+1). \(creaturesVM.creaturesArray[index].name.capitalized)")
+                            Text(creature.name.capitalized)
                                 .font(.title2)
                         }
                     }
                     .onAppear() {
-                        if let lastCreature = creaturesVM.creaturesArray.last {
-                            if creaturesVM.creaturesArray[index].name == lastCreature.name && creaturesVM.urlString .contains("http") {
-                                Task {
-                                    await creaturesVM.getData()
-                                }
-                            }
+                        Task {
+                            await creaturesVM.loadNextIfNeeded(creature: creature)
                         }
                     }
                 }
+                .searchable(text: $searchText)
                 .listStyle(PlainListStyle())
                 .navigationTitle("Pokemon")
                 .toolbar {
@@ -40,7 +38,7 @@ struct CreaturesListView: View {
                         Button("Load All") {
                             Task{
                                 await creaturesVM.loadAll()
-                                }
+                            }
                         }
                     }
                     ToolbarItem (placement: .status) {
@@ -59,8 +57,15 @@ struct CreaturesListView: View {
             await creaturesVM.getData()
         }
     }
+    var searchResults: [Creature] {
+        if searchText.isEmpty {
+            return creaturesVM.creaturesArray
+        } else {
+            return creaturesVM.creaturesArray.filter
+            {$0.name.capitalized.contains(searchText)}
+        }
+    }
 }
-
 #Preview {
     CreaturesListView()
 }
